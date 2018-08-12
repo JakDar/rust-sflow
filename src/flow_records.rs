@@ -193,7 +193,7 @@ pub struct SampledHeader {
 
 impl fmt::Debug for SampledHeader {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "SampledHeader{{protocol : {}, frame_length: {}, stripped: {}, header: {}}}", self.protocol, self.frame_length, self.stripped, String::from_utf8(self.header.clone()).unwrap()) // todo - can it be non-get and non-clone?
+        write!(f, "SampledHeader{{protocol : {}, frame_length: {}, stripped: {}, header: {:x?}}}", self.protocol, self.frame_length, self.stripped, self.header.as_slice())
     }
 }
 
