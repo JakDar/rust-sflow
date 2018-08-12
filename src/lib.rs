@@ -12,6 +12,7 @@ mod ipaddress;
 mod dst_as_path;
 mod datagram;
 mod community;
+mod ethernet;
 
 #[cfg(test)]
 mod test;

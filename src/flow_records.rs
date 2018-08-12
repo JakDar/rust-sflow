@@ -6,7 +6,7 @@ use ipaddress;
 use types::ReadSeeker;
 use utils::ReadBytesLocal;
 use std::fmt;
-
+use ethernet::EthernetPacket;
 // Std Lib Imports
 use std::io::SeekFrom;
 
@@ -187,13 +187,13 @@ pub struct SampledHeader {
 
                          Outer encapsulations that are ambiguous, or not one of the standard
                          header_protocol must be stripped. */
-   pub header: Vec<u8>, /* Header bytes */
+   pub packet: EthernetPacket,
 }
 }
 
 impl fmt::Debug for SampledHeader {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "SampledHeader{{protocol : {}, frame_length: {}, stripped: {}, header: {:x?}}}", self.protocol, self.frame_length, self.stripped, self.header.as_slice())
+        write!(f, "SampledHeader{{protocol : {}, frame_length: {}, stripped: {}, header: {:x?}}}", self.protocol, self.frame_length, self.stripped, self.packet)
     }
 }
 
