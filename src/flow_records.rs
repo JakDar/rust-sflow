@@ -5,20 +5,29 @@ use error;
 use ipaddress;
 use types::ReadSeeker;
 use utils::ReadBytesLocal;
+use std::fmt;
 
 // Std Lib Imports
 use std::io::SeekFrom;
 
 #[derive(Debug, Clone)]
 pub enum FlowRecord {
-    SampledHeader(SampledHeader), // Format 1
-    SampledIpv4(SampledIpv4), // Format 3
-    SampledIpv6(SampledIpv6), // Format 4
-    ExtendedSwitch(ExtendedSwitch), // Format 1001
-    ExtendedRouter(ExtendedRouter), // Format 1002
-    ExtendedGateway(ExtendedGateway), // Format 1003
-    ExtendedUrl(ExtendedUrl), // Format 1005
-    ExtendedMpls(ExtendedMpls), // Format 1006
+    SampledHeader(SampledHeader),
+    // Format 1
+    SampledIpv4(SampledIpv4),
+    // Format 3
+    SampledIpv6(SampledIpv6),
+    // Format 4
+    ExtendedSwitch(ExtendedSwitch),
+    // Format 1001
+    ExtendedRouter(ExtendedRouter),
+    // Format 1002
+    ExtendedGateway(ExtendedGateway),
+    // Format 1003
+    ExtendedUrl(ExtendedUrl),
+    // Format 1005
+    ExtendedMpls(ExtendedMpls),
+    // Format 1006
     ExtendedMplsTunnel(ExtendedMplsTunnel), // Format 1008
 }
 
@@ -78,7 +87,7 @@ impl ::utils::Decodeable for FlowRecord {
     }
 }
 
-add_decoder!{
+add_decoder! {
 #[derive(Debug, Clone, Default)]
 pub struct ExtendedGateway {
     pub next_hop: ipaddress::IPAddress,
@@ -91,7 +100,7 @@ pub struct ExtendedGateway {
 }
 }
 
-add_decoder!{
+add_decoder! {
 #[derive(Debug, Clone)]
 pub struct ExtendedUrl {
    pub directoin: u32,   /* Direction of connection */
@@ -100,7 +109,7 @@ pub struct ExtendedUrl {
 }
 }
 
-add_decoder!{
+add_decoder! {
 #[derive(Debug, Clone)]
 pub struct SampledIpv4 {
    pub length: u32,     /* The length of the IP packet excluding
@@ -116,7 +125,7 @@ pub struct SampledIpv4 {
 }
 }
 
-add_decoder!{
+add_decoder! {
 #[derive(Debug, Clone)]
 pub struct SampledIpv6 {
    pub length: u32,     /* The length of the IP packet excluding
@@ -132,7 +141,7 @@ pub struct SampledIpv6 {
 }
 }
 
-add_decoder!{
+add_decoder! {
 #[derive(Debug, Clone)]
 pub struct ExtendedSwitch {
    pub src_vlan: u32,     /* The 802.1Q VLAN id of incoming frame */
@@ -142,7 +151,7 @@ pub struct ExtendedSwitch {
 }
 }
 
-add_decoder!{
+add_decoder! {
 #[derive(Debug, Clone)]
 pub struct ExtendedRouter {
    pub nexthop: ipaddress::IPAddress,            /* IP address of next hop router */
@@ -153,8 +162,8 @@ pub struct ExtendedRouter {
 }
 }
 
-add_decoder!{
-#[derive(Debug, Clone)]
+add_decoder! {
+#[derive(Clone)]
 pub struct SampledHeader {
    // TODO: header_protocol should be an enum...
    pub protocol: u32,       /* Format of sampled header */
@@ -182,7 +191,13 @@ pub struct SampledHeader {
 }
 }
 
-add_decoder!{
+impl fmt::Debug for SampledHeader {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "SampledHeader{{protocol : {}, frame_length: {}, stripped: {}, header: {}}}", self.protocol, self.frame_length, self.stripped, String::from_utf8(self.header.clone()).unwrap()) // todo - can it be non-get and non-clone?
+    }
+}
+
+add_decoder! {
 #[derive(Debug, Clone)]
 pub struct ExtendedMplsTunnel {
    pub tunnel_lsp_name: String, /* Tunnel name */
@@ -191,7 +206,7 @@ pub struct ExtendedMplsTunnel {
 }
 }
 
-add_decoder!{
+add_decoder! {
 #[derive(Debug, Clone)]
 pub struct ExtendedMpls {
    pub nexthop: ipaddress::IPAddress,           /* Address of the next hop */
