@@ -1,4 +1,4 @@
-use ipaddress::IPAddress;
+use ipaddress::{IPAddress, decode_ipv4, decode_ipv6};
 use std::io::SeekFrom;
 
 add_decoder! {
@@ -38,8 +38,8 @@ impl ::utils::Decodeable for Ipv4Packet {
             total_length: ::utils::Decodeable::read_and_decode(stream)?,
             row1: ::utils::Decodeable::read_and_decode(stream)?,
             row2: ::utils::Decodeable::read_and_decode(stream)?,
-            source_addr: ::utils::Decodeable::read_and_decode(stream)?,
-            dst_addr: ::utils::Decodeable::read_and_decode(stream)?,
+            source_addr: decode_ipv4(stream)?,
+            dst_addr: decode_ipv4(stream)?,
             content: IpContent {},
         };
         stream.seek(SeekFrom::Current((s.total_length - 20) /*(todo*/ as i64))?;

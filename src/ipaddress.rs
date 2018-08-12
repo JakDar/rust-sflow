@@ -34,14 +34,13 @@ impl ::utils::Decodeable for IPAddress {
                 let err_string = format!("Unknown sflow ip type {}", ip_version);
                 return Err(Error::Io(io::Error::new(io::ErrorKind::InvalidData, err_string)));
             }
-
         }
 
         Ok(ip)
     }
 }
 
-fn decode_ipv4(stream: &mut ReadSeeker) -> Result<IPAddress, Error> {
+pub fn decode_ipv4(stream: &mut ReadSeeker) -> Result<IPAddress, Error> {
     let mut b: [u8; 4] = [0; 4];
     for i in 0..4 {
         b[i] = try!(stream.read_u8());
@@ -50,7 +49,7 @@ fn decode_ipv4(stream: &mut ReadSeeker) -> Result<IPAddress, Error> {
     Ok(IPAddress::IPv4(net::Ipv4Addr::new(b[0], b[1], b[2], b[3])))
 }
 
-fn decode_ipv6(stream: &mut ReadSeeker) -> Result<IPAddress, Error> {
+pub fn decode_ipv6(stream: &mut ReadSeeker) -> Result<IPAddress, Error> {
     let mut b: [u16; 8] = [0; 8];
     for i in 0..8 {
         b[i] = try!(stream.be_read_u16())
