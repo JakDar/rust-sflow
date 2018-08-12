@@ -187,6 +187,8 @@ pub struct SampledHeader {
 
                          Outer encapsulations that are ambiguous, or not one of the standard
                          header_protocol must be stripped. */
+
+   pub original_packet_length:u32,
    pub packet: EthernetPacket,
 }
 }
