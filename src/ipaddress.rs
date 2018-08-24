@@ -28,8 +28,8 @@ impl ::utils::Decodeable for IPAddress {
         let ip: IPAddress;
 
         match ip_version {
-            1 => ip = try!(decode_ipv4(stream)),
-            2 => ip = try!(decode_ipv6(stream)),
+            1 => ip = decode_ipv4(stream)?,
+            2 => ip = decode_ipv6(stream)?,
             _ => {
                 let err_string = format!("Unknown sflow ip type {}", ip_version);
                 return Err(Error::Io(io::Error::new(io::ErrorKind::InvalidData, err_string)));

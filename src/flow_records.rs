@@ -6,7 +6,7 @@ use ipaddress;
 use types::ReadSeeker;
 use utils::ReadBytesLocal;
 use std::fmt;
-use ethernet::EthernetPacket;
+use header_record::ethernet_packet::EthernetPacket;
 // Std Lib Imports
 use std::io::SeekFrom;
 
@@ -77,7 +77,7 @@ impl ::utils::Decodeable for FlowRecord {
                 println!("DEBUG: Unknown FlowRecord type {0} skipping {1} bytes.",
                          format,
                          length);
-                try!(stream.seek(SeekFrom::Current(length as i64)));
+                stream.seek(SeekFrom::Current(length as i64))?;
                 return Err(error::Error::UnknownType(format!("Unknown FlowRecord type {0} \
                                                               skipping {1} bytes.",
                                                              format,

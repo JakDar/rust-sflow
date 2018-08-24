@@ -12,7 +12,16 @@ mod ipaddress;
 mod dst_as_path;
 mod datagram;
 mod community;
-mod ethernet;
+
+mod header_record {
+    pub mod ethernet_packet;
+    pub mod ipv4_packet;
+
+    pub mod layer4 {
+        pub mod l4;
+        pub mod icmp;
+    }
+}
 
 #[cfg(test)]
 mod test;
@@ -24,6 +33,7 @@ extern crate rustc_serialize;
 
 // Public API
 pub use utils::Decodeable;
+pub use utils::DecodeableWithSize;
 pub use types::ReadSeeker;
 pub use error::Error;
 pub use datagram::Datagram;

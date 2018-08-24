@@ -70,13 +70,13 @@ macro_rules! add_decoder {
 }
 
 pub trait Decodeable {
-    fn read_and_decode(&mut types::ReadSeeker) -> Result<Self, ::error::Error> where Self: Sized;
+    fn read_and_decode(_: &mut types::ReadSeeker) -> Result<Self, ::error::Error> where Self: Sized;
 }
 
 impl Decodeable for u8 {
     #[inline]
     fn read_and_decode(stream: &mut types::ReadSeeker) -> Result<Self, error::Error> {
-        let r = try!(stream.read_u8());
+        let r = stream.read_u8()?;
 
         Ok(r)
     }
@@ -85,7 +85,7 @@ impl Decodeable for u8 {
 impl Decodeable for u64 {
     #[inline]
     fn read_and_decode(stream: &mut types::ReadSeeker) -> Result<u64, error::Error> {
-        let r = try!(stream.be_read_u64());
+        let r = stream.be_read_u64()?;
 
         Ok(r)
     }
@@ -94,7 +94,7 @@ impl Decodeable for u64 {
 impl Decodeable for u32 {
     #[inline]
     fn read_and_decode(stream: &mut types::ReadSeeker) -> Result<u32, error::Error> {
-        let r = try!(stream.be_read_u32());
+        let r = stream.be_read_u32()?;
 
         Ok(r)
     }
@@ -103,7 +103,7 @@ impl Decodeable for u32 {
 impl Decodeable for u16 {
     #[inline]
     fn read_and_decode(stream: &mut types::ReadSeeker) -> Result<Self, error::Error> {
-        let r = try!(stream.be_read_u16());
+        let r = stream.be_read_u16()?;
 
         Ok(r)
     }
@@ -112,16 +112,14 @@ impl Decodeable for u16 {
 impl Decodeable for i8 {
     #[inline]
     fn read_and_decode(stream: &mut types::ReadSeeker) -> Result<Self, error::Error> {
-        let r = try!(stream.read_i8());
-
-        Ok(r)
+        Ok(stream.read_i8()?)
     }
 }
 
 impl Decodeable for i32 {
     #[inline]
     fn read_and_decode(stream: &mut types::ReadSeeker) -> Result<i32, error::Error> {
-        let r = try!(stream.be_read_i32());
+        let r = stream.be_read_i32()?;
 
         Ok(r)
     }
@@ -130,7 +128,7 @@ impl Decodeable for i32 {
 impl Decodeable for i16 {
     #[inline]
     fn read_and_decode(stream: &mut types::ReadSeeker) -> Result<Self, error::Error> {
-        let r = try!(stream.be_read_i16());
+        let r = stream.be_read_i16()?;
 
         Ok(r)
     }
@@ -139,7 +137,7 @@ impl Decodeable for i16 {
 impl Decodeable for String {
     fn read_and_decode(stream: &mut types::ReadSeeker) -> Result<Self, error::Error> {
         // Get the XDR length
-        let length: usize = try!(stream.be_read_u32()) as usize;
+        let length: usize = stream.be_read_u32()? as usize;
 
         // Create a buffer to read the buf.
         let mut buf: Vec<u8> = Vec::with_capacity(length);
@@ -147,8 +145,8 @@ impl Decodeable for String {
             buf.set_len(length);
         }
 
-        try!(stream.read_exact(&mut buf));
-        let s = try!(String::from_utf8(buf));
+        stream.read_exact(&mut buf)?;
+        let s = String::from_utf8(buf)?;
 
         // We need to figure out how much padding will be needed.
         let mut padding = (4 - (length as i64)) % 4;
@@ -156,7 +154,7 @@ impl Decodeable for String {
             padding += 4
         }
         if padding != 0 {
-            try!(stream.seek(SeekFrom::Current(padding as i64)));
+            stream.seek(SeekFrom::Current(padding as i64))?;
         }
 
         Ok(s)
@@ -166,7 +164,7 @@ impl Decodeable for String {
 impl<T: Decodeable> Decodeable for Vec<T> {
     fn read_and_decode(stream: &mut types::ReadSeeker) -> Result<Vec<T>, error::Error> {
         // First we need to figure out how many samples there are.
-        let count = try!(stream.be_read_u32()); // todo - that only works if you have length,shit
+        let count = stream.be_read_u32()?;
         let mut results: Vec<T> = Vec::new();
 
         // We need to figure out how much padding will be needed.
@@ -209,3 +207,8 @@ impl Decodeable for [u8; 6] {
     }
 }
 
+
+
+pub trait DecodeableWithSize {
+    fn read_and_decode(bytes:i64,_: &mut types::ReadSeeker) -> Result<Self, ::error::Error> where Self: Sized;
+}

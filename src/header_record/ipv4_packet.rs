@@ -1,23 +1,10 @@
 use ipaddress::{decode_ipv4, IPAddress};
 use std::io::SeekFrom;
-
-add_decoder! {
-#[derive(Debug, Clone, Default)]
-pub struct EthernetPacket{
-    pub source: [u8;6],
-    pub destination : [u8;6],
-
-    pub type_ : u16, // 2 byte - 0x0800 for ipv4
-
-    pub packet:Ipv4Packet,
-}
-}
-
-#[derive(Debug, Clone, Default)]
-pub struct IpContent {}
+use header_record::layer4::{l4, icmp};
+use utils::DecodeableWithSize;
 
 // todo - ipv6?
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone)]
 pub struct Ipv4Packet {
     pub version: u8,
     pub header_length: u8,
@@ -32,13 +19,12 @@ pub struct Ipv4Packet {
     pub dst_addr: IPAddress,
     pub options_were_present: bool,
 
-    pub content: IpContent,
+    pub content: l4::Layer4Packet,
 }
 
 impl ::utils::Decodeable for Ipv4Packet {
     fn read_and_decode(stream: &mut ::types::ReadSeeker) -> ::std::result::Result<Ipv4Packet, ::error::Error> {
         let version_and_ihl: u8 = ::utils::Decodeable::read_and_decode(stream)?;
-
 
         let version = version_and_ihl >> 4;
         let header_length = version_and_ihl % (1 << 4);
@@ -59,6 +45,15 @@ impl ::utils::Decodeable for Ipv4Packet {
             stream.seek(SeekFrom::Current(option_len_in_bytes as i64))?;
         }
 
+        let bytes_left = (total_length - header_length as u16 * 4u16) as i64;
+
+        let content = match protocol {
+            3 => icmp::IcmpPacket::read_and_decode(bytes_left, stream).map(|x| l4::Layer4Packet::Icmp(x))?,
+            _ => {
+                stream.seek(SeekFrom::Current(bytes_left))?;
+                l4::Layer4Packet::Unknown
+            }
+        };
 
         let packet: Ipv4Packet = Ipv4Packet {
             version,
@@ -73,14 +68,12 @@ impl ::utils::Decodeable for Ipv4Packet {
             source_addr,
             dst_addr,
             options_were_present: false,
-            content: IpContent {},
+            content,
         };
-        stream.seek(SeekFrom::Current((packet.total_length - packet.header_length as u16 * 4u16) /*(todo*/ as i64))?;
+
 
         Ok(packet)
     }
 }
-
-
 
 
