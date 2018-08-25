@@ -20,6 +20,7 @@ mod header_record {
     pub mod layer4 {
         pub mod l4;
         pub mod icmp;
+        pub mod tcp;
     }
 }
 

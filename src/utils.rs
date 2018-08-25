@@ -207,8 +207,30 @@ impl Decodeable for [u8; 6] {
     }
 }
 
-
+pub fn u8_to_bool_array(var: u8) -> [bool; 8] {
+    let mut result: [bool; 8] = [false; 8];
+    let mut v = var;
+    for i in 0..8 {
+        result[7 - i] = v % 2 == 1;
+        v = v >> 1;
+    }
+    result
+}
 
 pub trait DecodeableWithSize {
-    fn read_and_decode(bytes:i64,_: &mut types::ReadSeeker) -> Result<Self, ::error::Error> where Self: Sized;
+    fn read_and_decode_with_size(bytes: i64, _: &mut types::ReadSeeker) -> Result<Self, ::error::Error> where Self: Sized;
+}
+
+impl DecodeableWithSize for String {
+    fn read_and_decode_with_size(bytes: i64, stream: &mut types::ReadSeeker) -> Result<Self, ::error::Error> where Self: Sized {
+        let length = bytes as usize;
+        let mut buf: Vec<u8> = Vec::with_capacity(length);
+        unsafe {
+            buf.set_len(length);
+        }
+
+        stream.read_exact(&mut buf)?;
+        let s = String::from_utf8(buf)?;
+        Ok(s)
+    }
 }

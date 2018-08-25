@@ -48,7 +48,7 @@ impl ::utils::Decodeable for Ipv4Packet {
         let bytes_left = (total_length - header_length as u16 * 4u16) as i64;
 
         let content = match protocol {
-            1 => icmp::IcmpPacket::read_and_decode(bytes_left, stream).map(|x| l4::Layer4Packet::Icmp(x))?,
+            1 => icmp::IcmpPacket::read_and_decode_with_size(bytes_left, stream).map(|x| l4::Layer4Packet::Icmp(x))?,
             _ => {
                 stream.seek(SeekFrom::Current(bytes_left))?;
                 l4::Layer4Packet::Unknown
