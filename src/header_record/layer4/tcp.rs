@@ -23,7 +23,7 @@ pub struct TcpPacket {
     pub checksum: u16,
     pub urg_pointer: u16,
     //options are skipped
-    pub data: String,
+//    pub data: String,
 }
 
 impl DecodeableWithSize for TcpPacket {
@@ -49,7 +49,8 @@ impl DecodeableWithSize for TcpPacket {
 
         let data_len = bytes - (data_offset * 4) as i64;
 
-        let data = String::read_and_decode_with_size(data_len, stream)?;
+        stream.seek(SeekFrom::Current(data_len));
+//        let data = String::read_and_decode_with_size(data_len, stream)?;
         let packet = TcpPacket {
             src_port,
             dst_port,
@@ -68,7 +69,7 @@ impl DecodeableWithSize for TcpPacket {
             window_size,
             checksum,
             urg_pointer,
-            data,
+//            data,
         };
         Ok(packet)
     }
