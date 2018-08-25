@@ -1,6 +1,6 @@
 use ipaddress::{decode_ipv4, IPAddress};
 use std::io::SeekFrom;
-use header_record::layer4::{l4, icmp};
+use header_record::layer4::{l4, icmp, tcp};
 use utils::DecodeableWithSize;
 
 // todo - ipv6?
@@ -49,6 +49,7 @@ impl ::utils::Decodeable for Ipv4Packet {
 
         let content = match protocol {
             1 => icmp::IcmpPacket::read_and_decode_with_size(bytes_left, stream).map(|x| l4::Layer4Packet::Icmp(x))?,
+            6 => tcp::TcpPacket::read_and_decode_with_size(bytes_left, stream).map(|x| l4::Layer4Packet::TCP(x))?,
             _ => {
                 stream.seek(SeekFrom::Current(bytes_left))?;
                 l4::Layer4Packet::Unknown
