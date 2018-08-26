@@ -6,7 +6,7 @@ use ipaddress;
 use types::ReadSeeker;
 use utils::ReadBytesLocal;
 use std::fmt;
-use header_record::ethernet_packet::EthernetPacket;
+use header_record::ethernet_packet::SampledEthernetPacket;
 // Std Lib Imports
 use std::io::SeekFrom;
 
@@ -38,7 +38,9 @@ impl ::utils::Decodeable for FlowRecord {
 
         match format {
             1 => {
-                let e = try!(SampledHeader::read_and_decode(stream));
+                let e = SampledHeader::read_and_decode(stream)?;
+
+                println!("Sample: {:?}", e); // todo - rm
                 return Ok(FlowRecord::SampledHeader(e));
             }
             3 => {
@@ -162,35 +164,56 @@ pub struct ExtendedRouter {
 }
 }
 
-add_decoder! {
 #[derive(Clone)]
 pub struct SampledHeader {
-   // TODO: header_protocol should be an enum...
-   pub protocol: u32,       /* Format of sampled header */
-   pub frame_length: u32, /* Original length of packet before sampling. Note: For a layer 2
-                             header_protocol, length is total number of octets of data received on
-                             the network (excluding framing bits but including FCS octets).
-                             Hardware limitations may prevent an exact reporting of the underlying
-                             frame length, but an agent should attempt to be as accurate as
-                             possible. Any octets added to the frame_length to compensate for
-                             encapsulations removed by the underlying hardware must also be added
-                             to the stripped count. */
+    // TODO: header_protocol should be an enum...
+    pub protocol: u32,
+    /* Format of sampled header */
+    pub frame_length: u32,
+    /* Original length of packet before sampling. Note: For a layer 2
+                                header_protocol, length is total number of octets of data received on
+                                the network (excluding framing bits but including FCS octets).
+                                Hardware limitations may prevent an exact reporting of the underlying
+                                frame length, but an agent should attempt to be as accurate as
+                                possible. Any octets added to the frame_length to compensate for
+                                encapsulations removed by the underlying hardware must also be added
+                                to the stripped count. */
 
-   pub stripped: u32, /* The number of octets removed from the packet before extracting the
-                         header<> octets. Trailing encapsulation data corresponding to any leading
-                         encapsulations that were stripped must also be stripped. Trailing
-                         encapsulation data for the outermost protocol layer included in the
-                         sampled header must be stripped.
+    pub stripped: u32,
+    /* The number of octets removed from the packet before extracting the
+                            header<> octets. Trailing encapsulation data corresponding to any leading
+                            encapsulations that were stripped must also be stripped. Trailing
+                            encapsulation data for the outermost protocol layer included in the
+                            sampled header must be stripped.
 
-                         In the case of a non-encapsulated 802.3 packet stripped >= 4 since VLAN
-                         tag information might have been stripped off in addition to the FCS.
+                            In the case of a non-encapsulated 802.3 packet stripped >= 4 since VLAN
+                            tag information might have been stripped off in addition to the FCS.
 
-                         Outer encapsulations that are ambiguous, or not one of the standard
-                         header_protocol must be stripped. */
+                            Outer encapsulations that are ambiguous, or not one of the standard
+                            header_protocol must be stripped. */
 
-   pub original_packet_length:u32,
-   pub packet: EthernetPacket,
+    pub original_packet_length: u32,
+    pub packet: SampledEthernetPacket, // todo - in fact it should be enum
 }
+
+impl ::utils::Decodeable for SampledHeader {
+    //todo - try to replace theese with macro
+    fn read_and_decode(stream: &mut ::types::ReadSeeker) -> ::std::result::Result<SampledHeader, ::error::Error> {
+        let protocol: u32 = ::utils::Decodeable::read_and_decode(stream)?;
+        let frame_length: u32 = ::utils::Decodeable::read_and_decode(stream)?;
+        let stripped: u32 = ::utils::Decodeable::read_and_decode(stream)?;
+        let original_packet_length: u32 = ::utils::Decodeable::read_and_decode(stream)?;
+
+        let s: SampledHeader = SampledHeader {
+            protocol,
+            frame_length,
+            stripped,
+            original_packet_length,
+            packet: ::utils::DecodeableWithSize::read_and_decode_with_size(original_packet_length as i64, stream)?,
+        };
+
+        Ok(s)
+    }
 }
 
 impl fmt::Debug for SampledHeader {

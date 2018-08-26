@@ -1,11 +1,10 @@
 use ipaddress::{decode_ipv4, IPAddress};
 use std::io::SeekFrom;
 use header_record::layer4::{l4, icmp, tcp};
-use utils::DecodeableWithSize;
 
 // todo - ipv6?
 #[derive(Debug, Clone)]
-pub struct Ipv4Packet {
+pub struct SampledIpv4Packet {
     pub version: u8,
     pub header_length: u8,
     pub tos: u8,
@@ -22,9 +21,11 @@ pub struct Ipv4Packet {
     pub content: l4::Layer4Packet,
 }
 
-impl ::utils::Decodeable for Ipv4Packet {
-    fn read_and_decode(stream: &mut ::types::ReadSeeker) -> ::std::result::Result<Ipv4Packet, ::error::Error> {
+impl ::utils::DecodeableWithSize for SampledIpv4Packet {
+    // todo with size
+    fn read_and_decode_with_size(bytes: i64, stream: &mut ::types::ReadSeeker) -> ::std::result::Result<SampledIpv4Packet, ::error::Error> {
         let version_and_ihl: u8 = ::utils::Decodeable::read_and_decode(stream)?;
+
 
         let version = version_and_ihl >> 4;
         let header_length = version_and_ihl % (1 << 4);
@@ -38,6 +39,9 @@ impl ::utils::Decodeable for Ipv4Packet {
         let source_addr = decode_ipv4(stream)?;
         let dst_addr = decode_ipv4(stream)?;
 
+        println!("bytes: {}", bytes);
+        println!("total length: {}", total_length);
+
         let options_were_present = header_length > 5;
 
         if options_were_present {
@@ -45,7 +49,9 @@ impl ::utils::Decodeable for Ipv4Packet {
             stream.seek(SeekFrom::Current(option_len_in_bytes as i64))?;
         }
 
-        let bytes_left = (total_length - header_length as u16 * 4u16) as i64;
+        // todo : clean this ethernet trailer mess below
+
+        let bytes_left = bytes.min(total_length as i64) - (header_length as u16 * 4u16) as i64;
 
         let content = match protocol {
             1 => icmp::IcmpPacket::read_and_decode_with_size(bytes_left, stream).map(|x| l4::Layer4Packet::Icmp(x))?,
@@ -56,7 +62,17 @@ impl ::utils::Decodeable for Ipv4Packet {
             }
         };
 
-        let packet: Ipv4Packet = Ipv4Packet {
+
+        let bytes_in_eth_trailer = bytes - total_length as i64;
+
+        println!("bytes in trailer {}", bytes_in_eth_trailer);
+
+
+        if bytes_in_eth_trailer > 0 {
+            stream.seek(SeekFrom::Current(bytes_in_eth_trailer))?;
+        }
+
+        let packet: SampledIpv4Packet = SampledIpv4Packet {
             version,
             header_length,
             tos: tos_and_ecn >> 1,
