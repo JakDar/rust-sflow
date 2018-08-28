@@ -235,7 +235,7 @@ impl DecodeableWithSize for String {
     }
 }
 
-impl DecodeableWithSize for Vec<char> {
+impl DecodeableWithSize for Vec<u8> {
     fn read_and_decode_with_size(bytes: i64, stream: &mut types::ReadSeeker) -> Result<Self, ::error::Error> where Self: Sized {
         let length = bytes as usize;
         let mut buf: Vec<u8> = Vec::with_capacity(length);
@@ -244,7 +244,13 @@ impl DecodeableWithSize for Vec<char> {
         }
 
         stream.read_exact(&mut buf)?;
-        let s = buf.iter_mut().map(|x| *x as char).collect();
-        Ok(s)
+        Ok(buf)
+    }
+}
+
+impl DecodeableWithSize for Vec<char> {
+    fn read_and_decode_with_size(bytes: i64, stream: &mut types::ReadSeeker) -> Result<Self, ::error::Error> where Self: Sized {
+        let s: Vec<u8> = Vec::read_and_decode_with_size(bytes, stream)?;
+        Ok(s.iter().map(|x| *x as char).collect())
     }
 }

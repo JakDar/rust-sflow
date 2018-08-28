@@ -68,9 +68,12 @@ impl ::utils::DecodeableWithSize for SampledIpv4Packet {
         println!("bytes in trailer {}", bytes_in_eth_trailer);
 
 
-        if bytes_in_eth_trailer > 0 {
-            stream.seek(SeekFrom::Current(bytes_in_eth_trailer))?;
+        if !bytes_in_eth_trailer < 0 { // todo - it works, but I have no idea why. TODO - fixure it out and  clean
+            stream.seek(SeekFrom::Current(2i64))?;
         }
+//        if bytes_in_eth_trailer > 0 {
+//            stream.seek(SeekFrom::Current(bytes_in_eth_trailer))?;
+//        }
 
         let packet: SampledIpv4Packet = SampledIpv4Packet {
             version,
