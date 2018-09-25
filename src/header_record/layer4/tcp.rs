@@ -2,6 +2,7 @@ use error;
 use std::io::SeekFrom;
 use types;
 use utils::{DecodeableWithSize, Decodeable, u8_to_bool_array};
+use header_record::layer7::l7::Layer7Packet;
 
 #[derive(Debug, Clone, Default)]
 pub struct TcpPacket {
@@ -23,7 +24,7 @@ pub struct TcpPacket {
     pub checksum: u16,
     pub urg_pointer: u16,
     //    options are skipped
-    pub data: String,
+    pub data: Layer7Packet,
 //    pub data: Vec<char>,
 }
 
@@ -51,8 +52,6 @@ impl DecodeableWithSize for TcpPacket {
         let data_len = bytes - (data_offset * 4) as i64;
 
         let data = String::read_and_decode_with_size((data_len).max(0), stream)?;
-//        let data: Vec<char> = Vec::read_and_decode_with_size(data_len, stream)?;
-        // todo 13 bytes too muchz when http
 
         let packet = TcpPacket {
             src_port,
@@ -72,7 +71,7 @@ impl DecodeableWithSize for TcpPacket {
             window_size,
             checksum,
             urg_pointer,
-            data,
+            data: Layer7Packet::decode(&data),
         };
         Ok(packet)
     }

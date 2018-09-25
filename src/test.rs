@@ -1,18 +1,15 @@
-// Standard Imports
-use std::io::Cursor;
-use types::ReadSeeker;
-use header_record::layer4::l4::Layer4Packet;
-use utils::Decodeable;
-use std::io::{Read, Seek};
-
-use std::fs::File;
 use flow_records::FlowRecord;
-
-
+use header_record::layer4::l4::Layer4Packet;
+use header_record::layer7::http::HttpRequest;
+use header_record::layer7::http::HttpResponse;
+use header_record::layer7::l7::Layer7Packet;
 // External Test Imports
 #[cfg(test)]
 use rustc_serialize::hex::FromHex;
-use flow_records::SampledHeader;
+use std::io::Read;
+// Standard Imports
+use std::io::Cursor;
+use utils::Decodeable;
 
 // const RAW_TEST_DATA: &'static str = "this data is redacted";
 //
@@ -171,4 +168,32 @@ fn test_decode_string() {
 
         assert_eq!(case.result, res);
     }
+}
+
+
+#[test]
+fn http_request() {
+    let http_request = "POST /test/demo_form.php HTTP/1.1
+    Host: w3schools.com
+    name1=value1&name2=value2";
+
+
+    let decoded = Layer7Packet::decode(http_request);
+    assert_eq!(decoded, Layer7Packet::HttpReq(HttpRequest { host: Option::Some("w3schools.com".to_string()), path: "/test/demo_form.php".to_string(), method: "POST".to_string() }))
+}
+
+#[test]
+fn http_resp() {
+    let http_request = "HTTP/1.1 200 OK
+Date: Tue, 25 Sep 2018 17:11:20 GMT
+Server: Apache
+Content-Transfer-Encoding: Binary
+Cache-Control: max-age=68502, public, no-transform, must-revalidate
+Last-Modified: Tue, 25 Sep 2018 01:13:08 GMT
+Content-Length: 1776 ";
+
+
+    let decoded = Layer7Packet::decode(http_request);
+
+    assert_eq!(decoded, Layer7Packet::HttpResp(HttpResponse { status_code: 200 }))
 }

@@ -22,6 +22,11 @@ mod header_record {
         pub mod icmp;
         pub mod tcp;
     }
+
+    pub mod layer7 {
+        pub mod l7;
+        pub mod http;
+    }
 }
 
 #[cfg(test)]
