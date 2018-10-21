@@ -4,7 +4,7 @@ use header_record::layer4::{l4, icmp, tcp};
 
 // todo - ipv6?
 #[derive(Debug, Clone)]
-pub struct SampledIpv4Packet {
+pub struct Ipv4Packet {
     pub version: u8,
     pub header_length: u8,
     pub tos: u8,
@@ -21,9 +21,8 @@ pub struct SampledIpv4Packet {
     pub content: l4::Layer4Packet,
 }
 
-impl ::utils::DecodeableWithSize for SampledIpv4Packet {
-    // todo with size
-    fn read_and_decode_with_size(bytes: i64, stream: &mut ::types::ReadSeeker) -> ::std::result::Result<SampledIpv4Packet, ::error::Error> {
+impl ::utils::DecodeableWithSize for Ipv4Packet {
+    fn read_and_decode_with_size(bytes: i64, stream: &mut ::types::ReadSeeker) -> ::std::result::Result<Ipv4Packet, ::error::Error> {
         let version_and_ihl: u8 = ::utils::Decodeable::read_and_decode(stream)?;
 
 
@@ -75,7 +74,7 @@ impl ::utils::DecodeableWithSize for SampledIpv4Packet {
 //            stream.seek(SeekFrom::Current(bytes_in_eth_trailer))?;
 //        }
 
-        let packet: SampledIpv4Packet = SampledIpv4Packet {
+        let packet: Ipv4Packet = Ipv4Packet {
             version,
             header_length,
             tos: tos_and_ecn >> 1,

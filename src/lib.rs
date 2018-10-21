@@ -6,14 +6,14 @@ mod utils;
 mod sample;
 mod types;
 mod counter_records;
-mod flow_records;
+pub mod flow_records;
 mod error;
 mod ipaddress;
 mod dst_as_path;
-mod datagram;
+pub mod datagram;
 mod community;
 
-mod header_record {
+pub mod header_record {
     pub mod ethernet_packet;
     pub mod ipv4_packet;
 

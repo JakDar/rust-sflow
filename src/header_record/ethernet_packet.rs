@@ -1,4 +1,4 @@
-use header_record::ipv4_packet::SampledIpv4Packet;
+use header_record::ipv4_packet::Ipv4Packet;
 use utils::DecodeableWithSize;
 use types::ReadSeeker;
 use error::Error;
@@ -10,7 +10,7 @@ pub struct SampledEthernetPacket {
 
     pub type_: u16, // 2 byte - 0x0800 for ipv4
 
-    pub packet: SampledIpv4Packet,
+    pub packet: Ipv4Packet,
 }
 
 impl DecodeableWithSize for SampledEthernetPacket {

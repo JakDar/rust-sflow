@@ -25,7 +25,6 @@ pub struct TcpPacket {
     pub urg_pointer: u16,
     //    options are skipped
     pub data: Layer7Packet,
-//    pub data: Vec<char>,
 }
 
 impl DecodeableWithSize for TcpPacket {
