@@ -21,13 +21,13 @@ impl Layer7Packet {
         if lines.len() < 1 {
             Layer7Packet::Unknown
         } else {
-            let line1: Vec<&str> = lines.get(0).unwrap().split(" ").collect();
+            let line1: Vec<&str> = lines.get(0).unwrap_or_else(|| panic!("rust-sflow l7 - lines are empty")).split(" ").collect();
 
             if line1.len() < 3 {
                 Layer7Packet::Unknown
             } else {
-                let t1 = line1.first().unwrap();
-                let t2: &str = line1.get(1).unwrap();
+                let t1 = line1.first().unwrap_or_else(|| panic!("rust-sflow l7 - line1 has <1 elems"));
+                let t2: &str = line1.get(1).unwrap_or_else(|| panic!("rust-sflow l7 - line has <2 elems"));
 
                 if t1.starts_with("HTTP") {
                     match t2.parse::<i32>() {
@@ -35,18 +35,23 @@ impl Layer7Packet {
                             Layer7Packet::HttpResp(HttpResponse::new(status_code)),
                         _ => Layer7Packet::Unknown
                     }
-                } else {
-                    let line2: &str = lines.get(1).unwrap().trim();
-                    let host = if line2.starts_with("Host:") {
-                        println!("Here");
-                        let vec: Vec<&str> = line2.split(": ").collect();
-                        vec.last().map(|x| x.clone())
+                } else if vec!["GET", "POST", "OPTIONS", "HEAD", "CONNECT", "PATCH", "PUT", "DELETE", "TRACE", "PATCH"].contains(t1)
+                    {
+                        //todo:if doesnt start with http then ogarnij się
+                        let host: Option<&str> = lines.get(1).and_then(|line2| {
+                            if line2.starts_with("Host:") {
+                                println!("Here");
+                                let vec: Vec<&str> = line2.split(": ").collect();
+                                vec.last().map(|x| x.clone())
+                            } else {
+                                Option::None
+                            }
+                        });
+
+
+                        Layer7Packet::HttpReq(HttpRequest::new(t1.to_string(), t2.to_string(), host.map(|x| x.to_string())))
                     } else {
-                        Option::None
-                    };
-
-
-                    Layer7Packet::HttpReq(HttpRequest::new(t1.to_string(), t2.to_string(), host.map(|x| x.to_string())))
+                    Layer7Packet::Unknown
                 }
             }
         }

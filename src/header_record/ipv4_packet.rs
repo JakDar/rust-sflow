@@ -38,6 +38,7 @@ impl ::utils::DecodeableWithSize for Ipv4Packet {
         let source_addr = decode_ipv4(stream)?;
         let dst_addr = decode_ipv4(stream)?;
 
+        //todo:bcm - remove /change to debug
         println!("bytes: {}", bytes);
         println!("total length: {}", total_length);
 
@@ -67,7 +68,7 @@ impl ::utils::DecodeableWithSize for Ipv4Packet {
         println!("bytes in trailer {}", bytes_in_eth_trailer);
 
 
-        if !bytes_in_eth_trailer < 0 { // todo - it works, but I have no idea why. TODO - figure it out and  clean
+        if 0 < bytes_in_eth_trailer { // todo - it works, but I have no idea why. TODO - figure it out and  clean
             stream.seek(SeekFrom::Current(2i64))?;
         }
 //        if bytes_in_eth_trailer > 0 {
