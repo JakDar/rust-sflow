@@ -146,6 +146,7 @@ impl Decodeable for String {
         }
 
         stream.read_exact(&mut buf)?;
+        //todo:bcm - here there can be mess
         let s = String::from_utf8(buf)?;
 
         // We need to figure out how much padding will be needed.
@@ -221,7 +222,7 @@ pub trait DecodeableWithSize {
     fn read_and_decode_with_size(bytes: i64, _: &mut types::ReadSeeker) -> Result<Self, ::error::Error> where Self: Sized;
 }
 
-impl DecodeableWithSize for String {
+impl DecodeableWithSize for String { //todo: should be result
     fn read_and_decode_with_size(bytes: i64, stream: &mut types::ReadSeeker) -> Result<Self, ::error::Error> where Self: Sized {
         let length = bytes as usize;
         let mut buf: Vec<u8> = Vec::with_capacity(length);

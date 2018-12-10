@@ -50,7 +50,12 @@ impl DecodeableWithSize for TcpPacket {
 
         let data_len = bytes - (data_offset * 4) as i64;
 
-        let data = String::read_and_decode_with_size((data_len).max(0), stream)?;
+        let data = String::read_and_decode_with_size((data_len).max(0), stream);
+
+        let l7 = data
+            .map(|data_str| Layer7Packet::decode(&data_str))
+            .unwrap_or_else(|_err| Layer7Packet::Unknown);
+
 
         let packet = TcpPacket {
             src_port,
@@ -70,7 +75,7 @@ impl DecodeableWithSize for TcpPacket {
             window_size,
             checksum,
             urg_pointer,
-            data: Layer7Packet::decode(&data),
+            data: l7,
         };
         Ok(packet)
     }

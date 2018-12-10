@@ -37,10 +37,9 @@ impl Layer7Packet {
                     }
                 } else if vec!["GET", "POST", "OPTIONS", "HEAD", "CONNECT", "PATCH", "PUT", "DELETE", "TRACE", "PATCH"].contains(t1)
                     {
-                        //todo:if doesnt start with http then ogarnij się
+                        //todo:if doesnt start with http then error?
                         let host: Option<&str> = lines.get(1).and_then(|line2| {
                             if line2.starts_with("Host:") {
-                                println!("Here");
                                 let vec: Vec<&str> = line2.split(": ").collect();
                                 vec.last().map(|x| x.clone())
                             } else {

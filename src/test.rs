@@ -159,7 +159,7 @@ fn test_decode_string() {
     };
 
     let test_cases: Vec<TestDecodeStringCase> = vec![
-        TestDecodeStringCase { raw_test_data: "00000006666f6f626172", result: "foobar" },
+            TestDecodeStringCase { raw_test_data: "00000006666f6f626172", result: "foobar" },
     ];
 
     for case in test_cases {
