@@ -21,6 +21,7 @@ pub mod header_record {
         pub mod l4;
         pub mod icmp;
         pub mod tcp;
+        pub mod udp;
     }
 
     pub mod layer7 {
