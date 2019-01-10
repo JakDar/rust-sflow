@@ -2,7 +2,6 @@ use ipaddress::{decode_ipv4, IPAddress};
 use std::io::SeekFrom;
 use header_record::layer4::{l4, icmp, tcp,udp};
 
-// todo - ipv6?
 #[derive(Debug, Clone)]
 pub struct Ipv4Packet {
     pub version: u8,
@@ -38,7 +37,6 @@ impl ::utils::DecodeableWithSize for Ipv4Packet {
         let source_addr = decode_ipv4(stream)?;
         let dst_addr = decode_ipv4(stream)?;
 
-        //todo:bcm - remove /change to debug
         println!("bytes: {}", bytes);
         println!("total length: {}", total_length);
 
@@ -49,7 +47,6 @@ impl ::utils::DecodeableWithSize for Ipv4Packet {
             stream.seek(SeekFrom::Current(option_len_in_bytes as i64))?;
         }
 
-        // todo : clean this ethernet trailer mess below
 
         let bytes_left = bytes.min(total_length as i64) - (header_length as u16 * 4u16) as i64;
 
@@ -69,12 +66,9 @@ impl ::utils::DecodeableWithSize for Ipv4Packet {
         println!("bytes in trailer {}", bytes_in_eth_trailer);
 
 
-        if 0 < bytes_in_eth_trailer { // todo - it works, but I have no idea why. TODO - figure it out and  clean
+        if 0 < bytes_in_eth_trailer {
             stream.seek(SeekFrom::Current(2i64))?;
         }
-//        if bytes_in_eth_trailer > 0 {
-//            stream.seek(SeekFrom::Current(bytes_in_eth_trailer))?;
-//        }
 
         let packet: Ipv4Packet = Ipv4Packet {
             version,

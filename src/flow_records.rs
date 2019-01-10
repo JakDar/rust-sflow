@@ -40,7 +40,7 @@ impl ::utils::Decodeable for FlowRecord {
             1 => {
                 let e = SampledHeader::read_and_decode(stream)?;
 
-                println!("Sample: {:?}", e); // todo - rm
+                println!("Sample: {:?}", e);
                 return Ok(FlowRecord::SampledHeader(e));
             }
             3 => {
@@ -166,7 +166,6 @@ pub struct ExtendedRouter {
 
 #[derive(Clone)]
 pub struct SampledHeader {
-    // TODO: header_protocol should be an enum...
     pub protocol: u32,
     /* Format of sampled header */
     pub frame_length: u32,

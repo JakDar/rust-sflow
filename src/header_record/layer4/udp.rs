@@ -21,7 +21,7 @@ impl DecodeableWithSize for UdpPacket {
         let length= u16::read_and_decode(stream)?; // in bytes
         let checksum= u16::read_and_decode(stream)?;
 
-        let bytes_left= bytes.min(length as i64) - 8i64; //todo - probably bytes- 8 would work
+        let bytes_left= bytes.min(length as i64) - 8i64;
         stream.seek(SeekFrom::Current(bytes_left))?;
 
 

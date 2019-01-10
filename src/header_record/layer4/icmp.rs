@@ -19,7 +19,7 @@ impl DecodeableWithSize for IcmpPacket {
             icmp_code: u8::read_and_decode(stream)?,
             header_checksum: u16::read_and_decode(stream)?,
         };
-        stream.seek(SeekFrom::Current(bytes - 4i64))?; // todo - 2 here, but should be 4 and trailer should be seeked above - no idea why lengths don't match
+        stream.seek(SeekFrom::Current(bytes - 4i64))?;
         Ok(packet)
     }
 }

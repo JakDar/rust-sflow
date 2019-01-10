@@ -25,9 +25,3 @@ impl DecodeableWithSize for SampledEthernetPacket {
         Ok(s)
     }
 }
-
-
-// todo - add enough support for IPV6 to skip ipv6 packets
-
-
-

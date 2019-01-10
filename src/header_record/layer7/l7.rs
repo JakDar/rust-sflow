@@ -14,7 +14,6 @@ impl Default for Layer7Packet {
 }
 
 impl Layer7Packet {
-    //TODO - clean
     pub fn decode(l7_body: &str) -> Layer7Packet {
         let lines: Vec<&str> = l7_body.split("\n").collect();
 
@@ -37,7 +36,6 @@ impl Layer7Packet {
                     }
                 } else if vec!["GET", "POST", "OPTIONS", "HEAD", "CONNECT", "PATCH", "PUT", "DELETE", "TRACE", "PATCH"].contains(t1)
                     {
-                        //todo:if doesnt start with http then error?
                         let host: Option<&str> = lines.get(1).and_then(|line2| {
                             if line2.starts_with("Host:") {
                                 let vec: Vec<&str> = line2.split(": ").collect();

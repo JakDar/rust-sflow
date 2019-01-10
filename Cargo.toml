@@ -1,7 +1,7 @@
 [package]
 name = "sflow"
 version = "0.0.1"
-authors = ["Tarrant Rollins <tarrant@keyneston.com>"]
+authors = ["Tarrant Rollins <tarrant@keyneston.com>", "Jakub Darul"]
 
 description = "Simple decoder for reading sFlow udp packets"
 homepage = "https://github.com/tarrant/rust-sflow"
@@ -9,7 +9,7 @@ keywords = ["sflow", "decoder", "network"]
 license = "Apache-2.0"
 license-file = "LICENSE"
 readme = "README.md"
-repository = "https://github.com/tarrant/rust-sflow"
+repository = "https://github.com/JakDar/rust-sflow"
 
 [dependencies]
 rustc-serialize = "0.3.16"

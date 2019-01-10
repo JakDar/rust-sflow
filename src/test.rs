@@ -11,18 +11,8 @@ use std::io::Read;
 use std::io::Cursor;
 use utils::Decodeable;
 
-// const RAW_TEST_DATA: &'static str = "this data is redacted";
-//
-// #[test]
-// fn test_decode_datagram() {
-//
-// let hex_data = RAW_TEST_DATA.clone().from_hex().unwrap();
-// let mut data = Cursor::new(hex_data);
-//
-// let d: Datagram = ::utils::Decodeable::read_and_decode(&mut data).unwrap();
-// TODO: Add more tests here.
-// assert_eq!(d.sample_record.len(), 6);
 #[test]
+
 fn http_get_response() {
     let mut stream = Cursor::new(vec![
         0x00u8, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x90,
