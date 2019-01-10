@@ -10,6 +10,7 @@ license = "Apache-2.0"
 license-file = "LICENSE"
 readme = "README.md"
 repository = "https://github.com/JakDar/rust-sflow"
+# Branch : cleaned
 
 [dependencies]
 rustc-serialize = "0.3.16"
